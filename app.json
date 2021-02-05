@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Vagary",
+    "slug": "Vagary",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "notification": {
+      "icon": "./resources/HOME/ICON.png"
+    },
+    "icon": "./resources/HOME/ICON.png",
+    "splash": {
+      "image": "./resources/HOME/PANTALLAINICIODECARGA.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "facebookAutoInitEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vagaryapp.vagaryapp"
+    },
+    "android": {
+      "package": "com.vagaryapp.vagaryapp",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCTw3IIdG-ZCan4D4siXLoCbcFaPm-8Xy8"
+        },
+        "googleSignIn": {
+          "apiKey": "AIzaSyCTw3IIdG-ZCan4D4siXLoCbcFaPm-8Xy8",
+          "certificateHash": "3a:18:83:2b:cc:56:11:e6:d4:bc:e7:e4:1b:f3:72:da:e4:f2:12:30"
+        }
+      }
+    }
+  }
+}
