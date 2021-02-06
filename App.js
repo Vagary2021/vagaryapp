@@ -191,7 +191,7 @@ class PantallaLogin extends React.Component {
       fontsLoaded: false,
       loading: false,
       loadingtext: "",
-      version: "1.0.4",
+      version: "1.0.5",
       photo2: "",
       isLoggedin: false,
       userData: null,
@@ -202,6 +202,40 @@ class PantallaLogin extends React.Component {
   handleBackButton() {
     return true;
   }
+
+  _retrieveData = async () => {
+    try {
+      const value = await AsyncStorage.getItem("email");
+      if (value !== null) {
+        axios
+        .post(
+          "https://us-central1-disco-domain-293019.cloudfunctions.net/getdatauser",
+          {
+            email: value,
+          }
+        )
+        .then((response) => {
+          if (response.data.length > 0) {
+            this._storeData(response.data[0].Email);
+            this.props.navigation.replace("Roullete", {
+              iduser: response.data[0].IDUser,
+            });
+            this.setState({ loading: false });
+          } else {
+            this.setState({ loading: false });
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+          this.setState({ loading: false });
+        });
+      }else{
+        this.setState({ loading: false });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   clardata = async () => {
     try {
@@ -246,6 +280,7 @@ class PantallaLogin extends React.Component {
               )
               .then((response) => {
                 if (response.data.length > 0) {
+                  this._storeData(response.data[0].Email);
                   this.props.navigation.replace("Roullete", {
                     iduser: response.data[0].IDUser,
                   });
@@ -259,6 +294,7 @@ class PantallaLogin extends React.Component {
                       }
                     )
                     .then((response) => {
+                      this._storeData(json.email);
                       this.props.navigation.replace("Roullete", {
                         iduser: response.data.insertId,
                       });
@@ -295,6 +331,14 @@ class PantallaLogin extends React.Component {
     //this._clearData();
   }
 
+    _storeData = async (email) => {
+    try {
+      await AsyncStorage.setItem("email", email);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   getversion = async () => {
     this.setState({
       loading: true,
@@ -307,7 +351,7 @@ class PantallaLogin extends React.Component {
       )
       .then((response) => {
         if (response.data[0].Value == this.state.version) {
-          this.setState({ loading: false });
+          this._retrieveData();
         } else {
           Alert.alert(
             "Actualización",
@@ -351,6 +395,7 @@ class PantallaLogin extends React.Component {
           )
           .then((response) => {
             if (response.data.length > 0) {
+              this._storeData(response.data[0].Email);
               this.props.navigation.replace("Roullete", {
                 iduser: response.data[0].IDUser,
               });
@@ -364,6 +409,7 @@ class PantallaLogin extends React.Component {
                   }
                 )
                 .then((response) => {
+                  this._storeData(result.user.email);
                   this.props.navigation.replace("Roullete", {
                     iduser: response.data.insertId,
                   });
@@ -1026,7 +1072,7 @@ class PantallaEspecial extends React.Component {
                             <View
                               style={{
                                 width: "98%",
-                                height: screenHeigth/3.3,
+                                height: screenHeigth/3.6,
                                 flexDirection: "row",
                                 justifyContent: "space-between",
                                 alignItems: "flex-end",
@@ -1063,7 +1109,7 @@ class PantallaEspecial extends React.Component {
                               <View
                                 style={{
                                   width: "20%",
-                                  height: 130,
+                                  height: 90,
                                   borderRadius: screenWidth / 35,
                                   justifyContent: "center",
                                 }}
