@@ -1,2 +1,2 @@
-import WheelOfFortune from './src/'
+import WheelOfFortune from './src/index'
 module.exports = WheelOfFortune
