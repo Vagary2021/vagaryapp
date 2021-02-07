@@ -1415,8 +1415,21 @@ class Roullete extends React.Component {
       "%90",
       "FREE",
     ];
+    const colors=[
+          '#000000',
+          '#00FF00',
+          '#000000',
+          '#00FF00',
+          '#000000',
+          '#00FF00',
+          '#000000',
+          '#00FF00',
+          '#000000',
+          '#00FF00',
+    ]
     const wheelOptions = {
       rewards: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      colors:colors,
       knobSize: 50,
       borderWidth: 5,
       borderColor: "#000",
@@ -1425,16 +1438,7 @@ class Roullete extends React.Component {
       backgroundColor: "white",
       textAngle: "horizontal",
       knobSource: require("./assets/images/knob.png"),
-      getWinner: (value) => {
-        if (
-          (this.state.valor && value % 2 === 0) ||
-          (!this.state.valor && value % 2 !== 0)
-        ) {
-          this.RegisterRoullete(true);
-        } else {
-          this.RegisterRoullete(false);
-        }
-      },
+      
       onRef: (ref) => (this.child = ref),
     };
     return (
@@ -1515,7 +1519,15 @@ class Roullete extends React.Component {
                 alignItems: "center",
               }}
             >
-              <WheelOfFortune wheelOptions={wheelOptions} />
+              <WheelOfFortune options={wheelOptions} getWinner={
+                (value,index)=>{
+                  if((this.state.valor && value % 2 == 0 )||(!this.state.valor && value % 2 !==0)){
+                    this.RegisterRoullete(true);
+                  }else{
+                    this.RegisterRoullete(false);
+                  }
+                }
+              } />
             </View>
             <View
               style={{

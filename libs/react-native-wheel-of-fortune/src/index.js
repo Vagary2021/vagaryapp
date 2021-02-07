@@ -99,16 +99,16 @@ class WheelOfFortune extends Component {
     var colors = this.props.options.colors
       ? this.props.options.colors
       : [
-          '#E07026',
-          '#E8C22E',
-          '#ABC937',
-          '#4F991D',
-          '#22AFD3',
-          '#5858D0',
-          '#7B48C8',
-          '#D843B9',
-          '#E23B80',
-          '#D82B2B',
+          '#000000',
+          '#00FF00',
+          '#000000',
+          '#00FF00',
+          '#000000',
+          '#00FF00',
+          '#000000',
+          '#00FF00',
+          '#000000',
+          '#00FF00',
         ];
     return arcs.map((arc, index) => {
       const instance = d3Shape
