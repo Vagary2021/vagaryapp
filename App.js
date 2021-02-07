@@ -15,7 +15,7 @@ import * as Google from "expo-google-app-auth";
 import axios from "axios";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Carousel, { Pagination } from "react-native-snap-carousel";
-import WheelOfFortune from "react-native-wheel-of-fortune";
+import WheelOfFortune from "./libs/react-native-wheel-of-fortune/index";
 import Images from "react-native-image-progress";
 import Progress from "react-native-progress/Bar";
 //NAVIGATOR
