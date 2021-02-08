@@ -55,6 +55,11 @@ export default class App extends React.Component {
             component={PantallaPromotion}
             tabBar={() => null}
           />
+          <Stack.Screen
+            name="PantallaMenu"
+            component={PantallaMenu}
+            tabBar={() => null}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -81,6 +86,176 @@ class PantallaCarga extends React.Component {
           style={{ width: "50%", height: "50%" }}
           source={require("./resources/HOME/CARGANDO.gif")}
         ></Image>
+      </View>
+    );
+  }
+}
+
+class PantallaMenu extends React.Component {
+  constructor({ navigation, route }) {
+    super({ navigation, route });
+    this.state = { 
+      iduser: route.params.iduser,
+      offer: route.params.offer,
+      points: 0,
+      loading:true
+    };
+  }
+
+  componentDidMount(){
+    this.CheckPoints();
+  }
+
+  CheckPoints(){
+    this.setState({loading:true, loadingtext:"Cargando menú."});
+    axios
+    .post(
+      "https://us-central1-disco-domain-293019.cloudfunctions.net/CheckPoints",
+      {
+        iduser: this.state.iduser,
+      }
+    )
+    .then((response) => {
+     if(response.data.length>0){
+       this.setState({points:response.data[0].Points, loading:false});
+     }
+    })
+    .catch(function (error) {
+      console.log(error);
+      this.setState({ loading: false });
+    });
+  }
+
+  render() {
+    return (
+      <View
+        style={{
+          flex: 1,
+          height: screenHeigth,
+          justifyContent: "space-evenly",
+          alignItems: "center",
+          backgroundColor: "white",
+        }}
+      >
+        {this.state.loading ? (
+          <View
+            style={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: "white",
+              justifyContent: "flex-end",
+            }}
+          >
+            <PantallaCarga></PantallaCarga>
+            <View
+              style={{
+                width: "100%",
+                height: screenHeigth / 7,
+                alignItems: "center",
+                justifyContent: "center",
+                position: "absolute",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: screenWidth / 30,
+                  color: "black",
+                  letterSpacing: 1.5,
+                  marginTop: "2%",
+                }}
+              >
+                {this.state.loadingtext}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View style={{width:screenWidth,
+            height: screenHeigth,
+            justifyContent: "space-evenly",
+            alignItems: "center",
+            backgroundColor: "white",}}>
+        <TouchableHighlight
+          style={{
+            width: "85%",
+            height: "40%",
+            backgroundColor: "#3498DB",
+            borderRadius: screenWidth / 35,
+            shadowColor: "rgba(0, 0, 0, 0.1)",
+            shadowOpacity: 0.8,
+            elevation: 6,
+            shadowOffset: { width: 1, height: 13 },
+          }}
+          onPress={()=>{
+            this.props.navigation.navigate("PantallaEspecial", {
+              iduser: this.state.iduser,
+              offer: this.state.offer,
+            });
+          }}
+        >
+          <View
+            style={{
+              width: "100%",
+              height: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: screenWidth / 17,
+                color: "white",
+                fontWeight: "bold",
+                textAlign:"center",
+                letterSpacing: 0.5,
+              }}
+            >
+              {"Ver promociones"}
+            </Text>
+          </View>
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={{
+            width: "85%",
+            height: "40%",
+            backgroundColor: "#1ABC9C",
+            borderRadius: screenWidth / 35,
+            shadowColor: "rgba(0, 0, 0, 0.1)",
+            shadowOpacity: 0.8,
+            elevation: 6,
+            shadowOffset: { width: 1, height: 13 },
+          }}
+        >
+          <View
+            style={{
+              width: "100%",
+              height: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: screenWidth / 17,
+                color: "white",
+                fontWeight: "bold",
+                textAlign:"center",
+                letterSpacing: 0.5,
+              }}
+            >
+              {this.state.points + " PUNTOS"}
+            </Text>
+            <Text
+              style={{
+                fontSize: screenWidth / 35,
+                color: "white",
+                textAlign:"center",
+                letterSpacing: 0.5,
+              }}
+            >
+              {"(Próximamente para canje por tarjeta de regalos)"}
+            </Text>
+          </View>
+        </TouchableHighlight></View>)}
       </View>
     );
   }
@@ -135,7 +310,7 @@ class PantallaPromotion extends React.Component {
                 style={{
                   width: 75,
                   height: 75,
-                  resizeMode: "contain", 
+                  resizeMode: "contain",
                 }}
                 source={{
                   uri: this.state.logo,
@@ -174,7 +349,7 @@ class PantallaPromotion extends React.Component {
             height: "80%",
             resizeMode: "contain",
           }}
-          resizeMode= {"contain"}
+          resizeMode={"contain"}
           source={{
             uri: this.state.image,
           }}
@@ -191,7 +366,7 @@ class PantallaLogin extends React.Component {
       fontsLoaded: false,
       loading: false,
       loadingtext: "",
-      version: "1.0.5",
+      version: "1.0.6",
       photo2: "",
       isLoggedin: false,
       userData: null,
@@ -204,32 +379,75 @@ class PantallaLogin extends React.Component {
   }
 
   _retrieveData = async () => {
+    let fecha =
+      new Date().getFullYear() +
+      "-" +
+      (new Date().getMonth() + 1) +
+      "-" +
+      new Date().getDate();
+
     try {
       const value = await AsyncStorage.getItem("email");
       if (value !== null) {
         axios
-        .post(
-          "https://us-central1-disco-domain-293019.cloudfunctions.net/getdatauser",
-          {
-            email: value,
-          }
-        )
-        .then((response) => {
-          if (response.data.length > 0) {
-            this._storeData(response.data[0].Email);
-            this.props.navigation.replace("Roullete", {
-              iduser: response.data[0].IDUser,
-            });
+          .post(
+            "https://us-central1-disco-domain-293019.cloudfunctions.net/getdatauser",
+            {
+              email: value,
+            }
+          )
+          .then((response) => {
+            if (response.data.length > 0) {
+              this._storeData(response.data[0].Email);
+              let idusuario = response.data[0].IDUser;
+              axios
+                .post(
+                  "https://us-central1-disco-domain-293019.cloudfunctions.net/CheckLoginPoints",
+                  {
+                    date: fecha,
+                    iduser: idusuario,
+                  }
+                )
+                .then((response) => {
+                  if (response.data.length == 0) {
+                    axios
+                      .post(
+                        "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterTransaction",
+                        {
+                          date: fecha,
+                          name: "LoginDiario",
+                          quantity: 5,
+                          iduser: idusuario,
+                        }
+                      )
+                      .then((response) => {
+                        this.props.navigation.replace("Roullete", {
+                          iduser: idusuario,
+                        });
+                      })
+                      .catch(function (error) {
+                        console.log(error);
+                        this.setState({ loading: false });
+                      });
+                  } else {
+                    this.props.navigation.replace("Roullete", {
+                      iduser: idusuario,
+                    });
+                  }
+                })
+                .catch(function (error) {
+                  console.log(error);
+                  this.setState({ loading: false });
+                });
+            } else {
+              this.setState({ loading: false });
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
             this.setState({ loading: false });
-          } else {
-            this.setState({ loading: false });
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-          this.setState({ loading: false });
-        });
-      }else{
+          });
+      } else {
         this.setState({ loading: false });
       }
     } catch (error) {
@@ -250,6 +468,13 @@ class PantallaLogin extends React.Component {
   }
 
   facebookLogIn = async () => {
+    let fecha =
+      new Date().getFullYear() +
+      "-" +
+      (new Date().getMonth() + 1) +
+      "-" +
+      new Date().getDate();
+
     this.setState({
       loading: true,
       loadingtext: "Logueandote con Facebook.",
@@ -281,9 +506,46 @@ class PantallaLogin extends React.Component {
               .then((response) => {
                 if (response.data.length > 0) {
                   this._storeData(response.data[0].Email);
-                  this.props.navigation.replace("Roullete", {
-                    iduser: response.data[0].IDUser,
-                  });
+                  let idusuario = response.data[0].IDUser;
+                  axios
+                    .post(
+                      "https://us-central1-disco-domain-293019.cloudfunctions.net/CheckLoginPoints",
+                      {
+                        date: fecha,
+                        iduser: idusuario,
+                      }
+                    )
+                    .then((response) => {
+                      if (response.data.length == 0) {
+                        axios
+                          .post(
+                            "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterTransaction",
+                            {
+                              date: fecha,
+                              name: "LoginDiario",
+                              quantity: 5,
+                              iduser: idusuario,
+                            }
+                          )
+                          .then((response) => {
+                            this.props.navigation.replace("Roullete", {
+                              iduser: idusuario,
+                            });
+                          })
+                          .catch(function (error) {
+                            console.log(error);
+                            this.setState({ loading: false });
+                          });
+                      } else {
+                        this.props.navigation.replace("Roullete", {
+                          iduser: idusuario,
+                        });
+                      }
+                    })
+                    .catch(function (error) {
+                      console.log(error);
+                      this.setState({ loading: false });
+                    });
                   this.setState({ loading: false });
                 } else {
                   axios
@@ -295,6 +557,21 @@ class PantallaLogin extends React.Component {
                     )
                     .then((response) => {
                       this._storeData(json.email);
+                      axios
+                        .post(
+                          "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterTransaction",
+                          {
+                            date: fecha,
+                            name: "Registro",
+                            quantity: 10,
+                            iduser: response.data.insertId,
+                          }
+                        )
+                        .then((response) => {})
+                        .catch(function (error) {
+                          console.log(error);
+                          this.setState({ loading: false });
+                        });
                       this.props.navigation.replace("Roullete", {
                         iduser: response.data.insertId,
                       });
@@ -331,7 +608,7 @@ class PantallaLogin extends React.Component {
     //this._clearData();
   }
 
-    _storeData = async (email) => {
+  _storeData = async (email) => {
     try {
       await AsyncStorage.setItem("email", email);
     } catch (error) {
@@ -375,6 +652,13 @@ class PantallaLogin extends React.Component {
   };
 
   signIn = async () => {
+    let fecha =
+      new Date().getFullYear() +
+      "-" +
+      (new Date().getMonth() + 1) +
+      "-" +
+      new Date().getDate();
+
     this.setState({ loading: true, loadingtext: "Logueandote con Google." });
     try {
       const result = await Google.logInAsync({
@@ -396,9 +680,46 @@ class PantallaLogin extends React.Component {
           .then((response) => {
             if (response.data.length > 0) {
               this._storeData(response.data[0].Email);
-              this.props.navigation.replace("Roullete", {
-                iduser: response.data[0].IDUser,
-              });
+              let idusuario = response.data[0].IDUser;
+              axios
+                .post(
+                  "https://us-central1-disco-domain-293019.cloudfunctions.net/CheckLoginPoints",
+                  {
+                    date: fecha,
+                    iduser: idusuario,
+                  }
+                )
+                .then((response) => {
+                  if (response.data.length == 0) {
+                    axios
+                      .post(
+                        "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterTransaction",
+                        {
+                          date: fecha,
+                          name: "LoginDiario",
+                          quantity: 5,
+                          iduser: idusuario,
+                        }
+                      )
+                      .then((response) => {
+                        this.props.navigation.replace("Roullete", {
+                          iduser: idusuario,
+                        });
+                      })
+                      .catch(function (error) {
+                        console.log(error);
+                        this.setState({ loading: false });
+                      });
+                  } else {
+                    this.props.navigation.replace("Roullete", {
+                      iduser: idusuario,
+                    });
+                  }
+                })
+                .catch(function (error) {
+                  console.log(error);
+                  this.setState({ loading: false });
+                });
               this.setState({ loading: false });
             } else {
               axios
@@ -410,6 +731,21 @@ class PantallaLogin extends React.Component {
                 )
                 .then((response) => {
                   this._storeData(result.user.email);
+                  axios
+                    .post(
+                      "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterTransaction",
+                      {
+                        date: fecha,
+                        name: "Registro",
+                        quantity: 10,
+                        iduser: response.data.insertId,
+                      }
+                    )
+                    .then((response) => {})
+                    .catch(function (error) {
+                      console.log(error);
+                      this.setState({ loading: false });
+                    });
                   this.props.navigation.replace("Roullete", {
                     iduser: response.data.insertId,
                   });
@@ -1005,17 +1341,17 @@ class PantallaEspecial extends React.Component {
                                 style={{
                                   width: 80,
                                   height: 80,
-                                  justifyContent:"center",
-                                  alignItems:"center",
-                                  borderColor: "transparent",                              
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  borderColor: "transparent",
                                 }}
                               >
                                 <Image
                                   style={{
                                     width: 75,
                                     height: 75,
-                                    resizeMode: "contain",  
-                                    overflow: 'hidden',                               
+                                    resizeMode: "contain",
+                                    overflow: "hidden",
                                   }}
                                   source={{
                                     uri: item.photo,
@@ -1072,7 +1408,7 @@ class PantallaEspecial extends React.Component {
                             <View
                               style={{
                                 width: "98%",
-                                height: screenHeigth/3.6,
+                                height: screenHeigth / 3.6,
                                 flexDirection: "row",
                                 justifyContent: "space-between",
                                 alignItems: "flex-end",
@@ -1082,8 +1418,8 @@ class PantallaEspecial extends React.Component {
                                 style={{
                                   width: "70%",
                                   height: 250,
-                                  justifyContent:"center",
-                                  alignItems:"center",
+                                  justifyContent: "center",
+                                  alignItems: "center",
                                   marginTop: screenHeigth / 6,
                                   position: "absolute",
                                 }}
@@ -1275,8 +1611,48 @@ class Roullete extends React.Component {
   }
 
   RegisterRoullete = async (winnieable) => {
-    let temporal = 0;
+    let fecha =
+      new Date().getFullYear() +
+      "-" +
+      (new Date().getMonth() + 1) +
+      "-" +
+      new Date().getDate();
+
     if (winnieable) {
+      axios
+        .post(
+          "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterTransaction",
+          {
+            date: fecha,
+            name: "RoulleteWin",
+            quantity: 5,
+            iduser: this.state.iduser,
+          }
+        )
+        .then((response) => {
+          axios
+            .post(
+              "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterRoullete",
+              {
+                iduser: this.state.iduser,
+                date: fecha,
+                value: "1",
+              }
+            )
+            .then((response) => {})
+            .catch(function (error) {
+              console.log(error);
+              this.setState({ loading: false });
+            });
+        })
+        .catch(function (error) {
+          console.log(error);
+          this.setState({ loading: false });
+        });
+      this.setState({
+        loading: true,
+        loadingtext: "Cargando promoción especial.",
+      });
       Alert.alert(
         "¡Felicidades!",
         "Podrás ver la promoción destacada de hoy.\n\nRegresa todos los días y gira la ruleta para descubrir más promociones destacadas.",
@@ -1284,44 +1660,32 @@ class Roullete extends React.Component {
           {
             text: "OK",
             onPress: () => {
-              this.setState({
-                loading: true,
-                loadingtext: "Cargando promoción especial.",
+              this.props.navigation.replace("PantallaMenu", {
+                iduser: this.state.iduser,
+                offer: winnieable,
               });
-              let fecha =
-                new Date().getFullYear() +
-                "-" +
-                (new Date().getMonth() + 1) +
-                "-" +
-                new Date().getDate();
-              axios
-                .post(
-                  "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterRoullete",
-                  {
-                    iduser: this.state.iduser,
-                    date: fecha,
-                    value: temporal,
-                  }
-                )
-                .then((response) => {
-                  this.props.navigation.replace("PantallaEspecial", {
-                    iduser: this.state.iduser,
-                    offer: winnieable,
-                  });
-                  this.setState({ loading: false });
-                })
-                .catch(function (error) {
-                  console.log(error);
-                  this.setState({ loading: false });
-                });
+              this.setState({ loading: false });
             },
           },
         ],
         { cancelable: false }
       );
-      temporal = 1;
     } else {
       this.setState({ loading: true, loadingtext: "Cargando promociónes." });
+      axios
+        .post(
+          "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterRoullete",
+          {
+            iduser: this.state.iduser,
+            date: fecha,
+            value: "0",
+          }
+        )
+        .then((response) => {})
+        .catch(function (error) {
+          console.log(error);
+          this.setState({ loading: false });
+        });
       Alert.alert(
         "Vagary",
         "No has tenido suerte esta vez. De todas formas podrás ver muchas promociones de hoy.\n\nRegresa todos los días y gira la ruleta para descubrir las promociones destacadas.",
@@ -1329,32 +1693,11 @@ class Roullete extends React.Component {
           {
             text: "OK",
             onPress: () => {
-              let fecha =
-                new Date().getFullYear() +
-                "-" +
-                (new Date().getMonth() + 1) +
-                "-" +
-                new Date().getDate();
-              axios
-                .post(
-                  "https://us-central1-disco-domain-293019.cloudfunctions.net/RegisterRoullete",
-                  {
-                    iduser: this.state.iduser,
-                    date: fecha,
-                    value: temporal,
-                  }
-                )
-                .then((response) => {
-                  this.props.navigation.replace("PantallaEspecial", {
-                    iduser: this.state.iduser,
-                    offer: winnieable,
-                  });
-                  this.setState({ loading: false });
-                })
-                .catch(function (error) {
-                  console.log(error);
-                  this.setState({ loading: false });
-                });
+              this.props.navigation.replace("PantallaMenu", {
+                iduser: this.state.iduser,
+                offer: winnieable,
+              });
+              this.setState({ loading: false });
             },
           },
         ],
@@ -1383,12 +1726,12 @@ class Roullete extends React.Component {
       .then((response) => {
         if (response.data.length > 0) {
           if (response.data[0].Value == "1") {
-            this.props.navigation.replace("PantallaEspecial", {
+            this.props.navigation.replace("PantallaMenu", {
               iduser: this.state.iduser,
               offer: true,
             });
           } else {
-            this.props.navigation.replace("PantallaEspecial", {
+            this.props.navigation.replace("PantallaMenu", {
               iduser: this.state.iduser,
               offer: false,
             });
