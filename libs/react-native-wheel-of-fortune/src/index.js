@@ -34,7 +34,7 @@ class WheelOfFortune extends Component {
   }
 
   prepareWheel = () => {
-    this.Rewards = this.props.options.rewards;
+    this.Rewards = this.props.wheelOptions.rewards;
     this.RewardCount = this.Rewards.length;
 
     this.numberOfSegments = this.RewardCount;
@@ -42,14 +42,14 @@ class WheelOfFortune extends Component {
     this.oneTurn = 360;
     this.angleBySegment = this.oneTurn / this.numberOfSegments;
     this.angleOffset = this.angleBySegment / 2;
-    this.winner = this.props.options.winner
-      ? this.props.options.winner
+    this.winner = this.props.wheelOptions.winner
+      ? this.props.wheelOptions.winner
       : Math.floor(Math.random() * this.numberOfSegments);
 
     this._wheelPaths = this.makeWheel();
     this._angle = new Animated.Value(0);
 
-    this.props.options.onRef(this);
+    this.props.wheelOptions.onRef(this);
   };
 
   resetWheelState = () => {
@@ -86,7 +86,7 @@ class WheelOfFortune extends Component {
   };
 
   componentWillUnmount() {
-    this.props.options.onRef(undefined);
+    this.props.wheelOptions.onRef(undefined);
   }
 
   componentDidMount() {
@@ -96,26 +96,18 @@ class WheelOfFortune extends Component {
   makeWheel = () => {
     const data = Array.from({length: this.numberOfSegments}).fill(1);
     const arcs = d3Shape.pie()(data);
-    var colors = this.props.options.colors
-      ? this.props.options.colors
+    var colors = this.props.wheelOptions.colors
+      ? this.props.wheelOptions.colors
       : [
-          '#000000',
-          '#00FF00',
-          '#000000',
-          '#00FF00',
-          '#000000',
-          '#00FF00',
-          '#000000',
-          '#00FF00',
-          '#000000',
-          '#00FF00',
+          'black',
+          'red',
         ];
     return arcs.map((arc, index) => {
       const instance = d3Shape
         .arc()
         .padAngle(0.01)
         .outerRadius(width / 2)
-        .innerRadius(this.props.options.innerRadius || 100);
+        .innerRadius(this.props.wheelOptions.innerRadius || 100);
       return {
         path: instance(arc),
         color: colors[index % colors.length],
@@ -139,7 +131,7 @@ class WheelOfFortune extends Component {
   };
 
   _onPress = () => {
-    const duration = this.props.options.duration || 10000;
+    const duration = this.props.wheelOptions.duration || 10000;
 
     this.setState({
       started: true,
@@ -157,7 +149,7 @@ class WheelOfFortune extends Component {
         finished: true,
         winner: this._wheelPaths[winnerIndex].value,
       });
-      this.props.getWinner(this._wheelPaths[winnerIndex].value, winnerIndex);
+      this.props.wheelOptions.getWinner(this._wheelPaths[winnerIndex].value);
     });
   };
 
@@ -166,13 +158,13 @@ class WheelOfFortune extends Component {
       x={x - number.length * 5}
       y={y - 80}
       fill={
-        this.props.options.textColor ? this.props.options.textColor : '#fff'
+        this.props.wheelOptions.textColor ? this.props.wheelOptions.textColor : '#fff'
       }
       textAnchor="middle"
       fontSize={this.fontSize}>
       {Array.from({length: number.length}).map((_, j) => {
         // Render reward text vertically
-        if (this.props.options.textAngle === 'vertical') {
+        if (this.props.wheelOptions.textAngle === 'vertical') {
           return (
             <TSpan x={x} dy={this.fontSize} key={`arc-${i}-slice-${j}`}>
               {number.charAt(j)}
@@ -214,18 +206,18 @@ class WheelOfFortune extends Component {
                 }),
               },
             ],
-            backgroundColor: this.props.options.backgroundColor
-              ? this.props.options.backgroundColor
-              : '#fff',
+            backgroundColor: this.props.wheelOptions.backgroundColor
+              ? this.props.wheelOptions.backgroundColor
+              : 'white',
             width: width - 20,
             height: width - 20,
             borderRadius: (width - 20) / 2,
-            borderWidth: this.props.options.borderWidth
-              ? this.props.options.borderWidth
+            borderWidth: this.props.wheelOptions.borderWidth
+              ? this.props.wheelOptions.borderWidth
               : 2,
-            borderColor: this.props.options.borderColor
-              ? this.props.options.borderColor
-              : '#fff',
+            borderColor: this.props.wheelOptions.borderColor
+              ? this.props.wheelOptions.borderColor
+              : 'white',
             opacity: this.state.wheelOpacity,
           }}>
           <AnimatedSvg
@@ -249,8 +241,7 @@ class WheelOfFortune extends Component {
                         (i * this.oneTurn) / this.numberOfSegments +
                         this.angleOffset
                       }
-                      origin={`${x}, ${y}`}>
-                      {this._textRender(x, y, number, i)}
+                      origin={`${x}, ${y}`}>                     
                     </G>
                   </G>
                 );
@@ -263,8 +254,8 @@ class WheelOfFortune extends Component {
   };
 
   _renderKnob = () => {
-    const knobSize = this.props.options.knobSize
-      ? this.props.options.knobSize
+    const knobSize = this.props.wheelOptions.knobSize
+      ? this.props.wheelOptions.knobSize
       : 20;
     // [0, this.numberOfSegments]
     const YOLO = Animated.modulo(
@@ -311,11 +302,12 @@ class WheelOfFortune extends Component {
           }}>
           <Image
             source={
-              this.props.options.knobSource
-                ? this.props.options.knobSource
-                : require('../assets/images/knob.png')
+              this.props.wheelOptions.knobSource
+                ? this.props.wheelOptions.knobSource
+                : require('../../../assets/images/knob.png')
             }
             style={{ width: knobSize, height: (knobSize * 100) / 57 }}
+            resizeMode={"stretch"}
           />
         </Svg>
       </Animated.View>
@@ -326,7 +318,7 @@ class WheelOfFortune extends Component {
     if (this.state.started == false) {
       return (
         <TouchableOpacity onPress={() => this._onPress()}>
-          {this.props.options.playButton()}
+          {this.props.wheelOptions.playButton()}
         </TouchableOpacity>
       );
     }
@@ -347,7 +339,7 @@ class WheelOfFortune extends Component {
             {this._renderSvgWheel()}
           </Animated.View>
         </TouchableOpacity>
-        {this.props.options.playButton ? this._renderTopToPlay() : null}
+        {this.props.wheelOptions.playButton ? this._renderTopToPlay() : null}
       </View>
     );
   }
@@ -364,7 +356,7 @@ const styles = StyleSheet.create({
   content: {},
   startText: {
     fontSize: 50,
-    color: '#fff',
+    color: 'white',
     fontWeight: 'bold',
     textShadowColor: 'rgba(0, 0, 0, 0.4)',
     textShadowOffset: {width: -1, height: 1},

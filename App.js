@@ -382,6 +382,8 @@ class PantallaLogin extends React.Component {
           "9047621973-4htof6lnmlqve0sti9tem49absoo4qr7.apps.googleusercontent.com",
         androidStandaloneAppClientId:
           "9047621973-gd79nfd97i1d0jolbrtiqe8200mkhjkv.apps.googleusercontent.com",
+        iosStandaloneAppClientId:"9047621973-kdjtmd8r3ndc1dd5f411l94sa8hbp16m.apps.googleusercontent.com",
+        iosClientId:"9047621973-kdjtmd8r3ndc1dd5f411l94sa8hbp16m.apps.googleusercontent.com",
         scopes: ["profile", "email"],
       });
 
